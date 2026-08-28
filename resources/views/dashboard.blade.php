@@ -3,43 +3,62 @@
 @section('title', 'Dashboard - Marine Harmony')
 
 @section('content')
-<h1>Dashboard</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="margin: 0; font-size: 1.75rem; font-weight: 800; color: var(--navy);">Financial Dashboard</h1>
+        <p style="margin: 4px 0 0 0; color: var(--muted); font-size: 0.9375rem;">Real-time balance, member contributions, and liquid funds summary.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{{ route('deposits.index') }}" class="btn primary" style="text-decoration: none;">+ Submit Deposit</a>
+        <a href="{{ route('income.index') }}" class="btn" style="text-decoration: none;">+ Add Income</a>
+        <a href="{{ route('expenses.index') }}" class="btn" style="text-decoration: none;">+ Add Expense</a>
+        <a href="{{ route('reports.index') }}" class="btn" style="text-decoration: none;">📊 Reports</a>
+    </div>
+</div>
 
 <!-- Metrics Cards Grid -->
 <div class="grid">
-    <div class="card metric">
-        <div class="label">Approved Deposits</div>
-        <div class="value">{{ \App\Services\FinanceService::formatMoney($totalDeposits) }}</div>
-    </div>
-    <div class="card metric">
-        <div class="label">Total Income</div>
-        <div class="value">{{ \App\Services\FinanceService::formatMoney($totalIncome) }}</div>
-    </div>
-    <div class="card metric">
-        <div class="label">Total Expenditure</div>
-        <div class="value">{{ \App\Services\FinanceService::formatMoney($totalExpenses) }}</div>
-    </div>
-    <div class="card metric">
-        <div class="label">Total Investments (MTDR / FDR)</div>
-        <div class="value">{{ \App\Services\FinanceService::formatMoney($totalInvestments) }}</div>
-    </div>
-    <div class="card metric">
-        <div class="label">Official Bank Balance</div>
-        <div class="value" id="calcBankBalance" data-amount="{{ $officialBankBalance }}">
-            {{ \App\Services\FinanceService::formatMoney($officialBankBalance) }}
-        </div>
-        <small class="hint">Deposits + Income − Expenditure − Investments</small>
-    </div>
-    <div class="card metric">
+    <div class="card metric" style="border-top: 4px solid #1683c7;">
         <div class="label">Net Total Fund</div>
-        <div class="value">{{ \App\Services\FinanceService::formatMoney($netFund) }}</div>
+        <div class="value" style="color: #073b66;">{{ \App\Services\FinanceService::formatMoney($netFund) }}</div>
         <small class="hint">Bank Balance + Investments</small>
     </div>
+    <div class="card metric" style="border-top: 4px solid #10b981;">
+        <div class="label">Official Bank Balance</div>
+        <div class="value" id="calcBankBalance" data-amount="{{ $officialBankBalance }}" style="color: #15803d;">
+            {{ \App\Services\FinanceService::formatMoney($officialBankBalance) }}
+        </div>
+        <small class="hint">Deposits + Income − Expense − Investments</small>
+    </div>
+    <div class="card metric" style="border-top: 4px solid #6366f1;">
+        <div class="label">Approved Deposits</div>
+        <div class="value">{{ \App\Services\FinanceService::formatMoney($totalDeposits) }}</div>
+        <small class="hint">Member regular installments</small>
+    </div>
+    <div class="card metric" style="border-top: 4px solid #06b6d4;">
+        <div class="label">Total Income</div>
+        <div class="value">{{ \App\Services\FinanceService::formatMoney($totalIncome) }}</div>
+        <small class="hint">Earnings, interest & grants</small>
+    </div>
+    <div class="card metric" style="border-top: 4px solid #f43f5e;">
+        <div class="label">Total Expenditure</div>
+        <div class="value">{{ \App\Services\FinanceService::formatMoney($totalExpenses) }}</div>
+        <small class="hint">Administrative & operations</small>
+    </div>
+    <div class="card metric" style="border-top: 4px solid #8b5cf6;">
+        <div class="label">Total Investments (MTDR/FDR)</div>
+        <div class="value">{{ \App\Services\FinanceService::formatMoney($totalInvestments) }}</div>
+        <small class="hint">Fixed deposit receipts</small>
+    </div>
     @if($isAdmin)
-        <div class="card metric">
+        <div class="card metric" style="border-top: 4px solid #f59e0b;">
             <div class="label">Pending Admin Approvals</div>
             <div class="value text-amber">{{ \App\Services\FinanceService::formatMoney($pendingTotal) }}</div>
-            <small class="hint">{{ $pendingCount }} item(s) awaiting approval</small>
+            <small class="hint">
+                <a href="{{ route('approval.index') }}" style="color: #b54708; font-weight: 700; text-decoration: underline;">
+                    {{ $pendingCount }} item(s) awaiting approval →
+                </a>
+            </small>
         </div>
     @endif
 </div>
