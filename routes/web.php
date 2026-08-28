@@ -49,8 +49,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/approval', [ApprovalController::class, 'index'])->name('approval.index');
     Route::post('/approval/decide', [ApprovalController::class, 'decide'])->name('approval.decide');
 
-    // Members Directory
+    // Members Directory & Individual Profiles
     Route::get('/members', [MemberController::class, 'index'])->name('members.index');
+    Route::get('/members/{id}', [MemberController::class, 'show'])->name('members.show');
 
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

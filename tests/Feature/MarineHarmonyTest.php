@@ -247,4 +247,33 @@ class MarineHarmonyTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Reset');
     }
+
+    public function test_members_directory_links_to_individual_member_profiles(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $response = $this->actingAs($admin)->get('/members');
+        $response->assertStatus(200);
+        $response->assertSee('Marine Harmony Members Directory');
+
+        $firstMember = User::first();
+        $response->assertSee(route('members.show', $firstMember->id));
+    }
+
+    public function test_individual_member_profile_page_renders_dynamically(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $member = User::where('role', 'member')->first() ?? $admin;
+
+        $response = $this->actingAs($admin)->get('/members/'.$member->id);
+        $response->assertStatus(200);
+        $response->assertSee($member->name);
+        $response->assertSee('Total Approved Deposits');
+        $response->assertSee('Installments Completed');
+        $response->assertSee('Monthly Installment Schedule');
+        $response->assertSee('Detailed Ledger');
+
+        // Test non-existent member returns 404
+        $invalidResponse = $this->actingAs($admin)->get('/members/99999');
+        $invalidResponse->assertStatus(404);
+    }
 }

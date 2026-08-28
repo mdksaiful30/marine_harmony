@@ -216,7 +216,7 @@ $webauthnToken = $passkeysEnabled ? ' webauthn' : '';
                 <input type="hidden" name="email" id="magic-email" value="">
                 <input type="hidden" name="username" id="magic-username" value="">
                 <input type="hidden" name="login" id="magic-login" value="">
-                
+
                 <button type="submit" class="btn btn-secondary" id="magic-login-btn" style="width: 100%; background-color: #f3f4f6; color: #374151; border: 1px solid #e5e7eb;">
                     <svg style="width: 1.25rem; height: 1.25rem; display: inline-block; vertical-align: middle; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
