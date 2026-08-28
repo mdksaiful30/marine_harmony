@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', $member->name . ' - Member Profile | Marine Harmony')
 
@@ -16,7 +16,15 @@
             <span>/</span>
             <span style="color: var(--navy); font-weight: 700;">{{ $member->name }}</span>
         </div>
-        <div style="display: flex; gap: 8px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            @if(Auth::id() !== $member->id)
+                <a href="{{ route('auth.switch-member', $member->id) }}" class="btn small" style="background: linear-gradient(135deg, #073b66, #0aa6a6); color: #fff; font-weight: 700; text-decoration: none; border-radius: 8px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(7,59,102,0.18);" title="Make this member the active user">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+                    </svg>
+                    Switch to {{ $member->name }}
+                </a>
+            @endif
             <a href="{{ route('reports.index', ['type' => 'Ledger', 'member' => $member->name]) }}" class="btn small" style="background: #e2e8f0; color: #1e293b; font-weight: 600; text-decoration: none; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -24,7 +32,7 @@
                 </svg>
                 Detailed Ledger
             </a>
-            <a href="{{ route('deposits.index') }}" class="btn small primary" style="font-weight: 600; text-decoration: none; border-radius: 8px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="{{ route('deposits.index', ['member' => $member->name]) }}" class="btn small primary" style="font-weight: 600; text-decoration: none; border-radius: 8px; padding: 6px 14px; display: inline-flex; align-items: center; gap: 6px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>

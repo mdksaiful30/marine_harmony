@@ -28,7 +28,7 @@
             <span>Marine Harmony</span>
         </div>
         <div class="userbar">
-            <div class="user-profile">
+            <a href="{{ route('members.show', Auth::id()) }}" class="user-profile" title="View Your Profile" style="text-decoration: none; color: inherit;">
                 @if(Auth::user()->avatar)
                     <img class="member-avatar" src="{{ asset(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}">
                 @else
@@ -37,8 +37,16 @@
                 <div>
                     <div class="user-name">{{ Auth::user()->name }}</div>
                 </div>
-            </div>
+            </a>
             <span class="role">{{ Auth::user()->isAdmin() ? 'Admin' : 'Member' }}</span>
+            <select onchange="if(this.value) window.location.href=this.value;" style="background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.35); border-radius: 8px; padding: 4px 8px; font-size: 12px; font-weight: 600; cursor: pointer; outline: none;" title="Switch Member Account">
+                <option value="" disabled style="color: #000;">Switch Member ▾</option>
+                @foreach(\App\Models\User::orderBy('id')->get() as $u)
+                    <option value="{{ route('auth.switch-member', $u->id) }}" style="color: #000;" {{ Auth::id() === $u->id ? 'selected' : '' }}>
+                        {{ $u->name }} ({{ $u->isAdmin() ? 'Admin' : 'Member' }})
+                    </option>
+                @endforeach
+            </select>
             <form action="{{ route('logout') }}" method="POST" class="form-inline">
                 @csrf
                 <button type="submit" class="btn small danger ml-6">Logout</button>

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 class DepositController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $isAdmin = $user && $user->isAdmin();
@@ -38,7 +38,12 @@ class DepositController extends Controller
         $allMonths = FinanceService::getMonthsList('2024-01', '2026-12');
 
         // Precalculated approved and pending months for current user/selected member
-        $currentMemberName = $isAdmin ? ($members->first()->name ?? $user->name) : $user->name;
+        $requestedMember = $request->query('member');
+        if (is_numeric($requestedMember)) {
+            $found = User::find($requestedMember);
+            $requestedMember = $found ? $found->name : null;
+        }
+        $currentMemberName = $requestedMember ?: ($isAdmin ? ($members->first()->name ?? $user->name) : $user->name);
         $approvedMonths = FinanceService::getApprovedPeriodsForMember($currentMemberName);
         $pendingMonths = FinanceService::getPendingPeriodsForMember($currentMemberName);
 

@@ -126,4 +126,16 @@ class AuthController extends Controller
 
         return redirect()->route('tyro-login.login')->with('success', 'You have been logged out successfully.');
     }
+
+    /**
+     * Switch active authenticated member account.
+     */
+    public function switchMember(Request $request, $id)
+    {
+        $target = User::findOrFail($id);
+        Auth::login($target);
+        $request->session()->regenerate();
+
+        return back()->with('success', 'Switched active account to '.$target->name);
+    }
 }

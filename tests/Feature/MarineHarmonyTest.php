@@ -276,4 +276,27 @@ class MarineHarmonyTest extends TestCase
         $invalidResponse = $this->actingAs($admin)->get('/members/99999');
         $invalidResponse->assertStatus(404);
     }
+
+    public function test_user_can_switch_active_account_to_another_member(): void
+    {
+        $taposh = User::where('name', 'Taposh Kumar Biswas')->first();
+        $mohibur = User::where('name', 'Md Mohibur Rahman')->first();
+
+        $this->assertNotNull($taposh);
+        $this->assertNotNull($mohibur);
+
+        // Authenticate as Taposh
+        $this->actingAs($taposh);
+        $this->assertAuthenticatedAs($taposh);
+
+        // Switch to Mohibur
+        $switchResponse = $this->get(route('auth.switch-member', $mohibur->id));
+        $switchResponse->assertStatus(302);
+        $this->assertAuthenticatedAs($mohibur);
+
+        // Visit Mohibur profile as Mohibur
+        $profileResponse = $this->get(route('members.show', $mohibur->id));
+        $profileResponse->assertStatus(200);
+        $profileResponse->assertSee($mohibur->name);
+    }
 }
