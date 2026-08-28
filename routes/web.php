@@ -56,3 +56,9 @@ Route::middleware(['auth'])->group(function () {
     // API endpoints for dynamic UI
     Route::get('/api/members/{member}/months', [DepositController::class, 'getMemberMonths'])->name('api.members.months');
 });
+
+Route::view('dashboard/admin', 'dashboard.admin')->middleware(['auth', 'tyro-dashboard.admin'])->name('dashboard.admin');
+
+Route::view('dashboard/user', 'dashboard.user')->middleware(['auth'])->name('dashboard.user');
+
+Route::view('dashboard/all-members', 'dashboard.all-members')->middleware(['auth'])->name('dashboard.all-members');

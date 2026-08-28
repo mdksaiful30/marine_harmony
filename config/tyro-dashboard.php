@@ -133,8 +133,8 @@ return [
         'show_privileges_menu' => env('TYRO_DASHBOARD_SHOW_PRIVILEGES_MENU', true),
         'show_resources_menu' => env('TYRO_DASHBOARD_SHOW_RESOURCES_MENU', true),
         'activity_log' => false, // Future feature
-        'profile_photo_upload' => env('TYRO_DASHBOARD_ENABLE_PROFILE_PHOTO', false),
-        'gravatar' => env('TYRO_DASHBOARD_ENABLE_GRAVATAR', false),
+        'profile_photo_upload' => env('TYRO_DASHBOARD_ENABLE_PROFILE_PHOTO', true),
+        'gravatar' => env('TYRO_DASHBOARD_ENABLE_GRAVATAR', true),
         'heartbeat' => env('TYRO_DASHBOARD_ENABLE_HEARTBEAT', true),
     ],
 
