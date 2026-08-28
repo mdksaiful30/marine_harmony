@@ -6,9 +6,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    /**
+     * Show the login form.
+     */
     public function showLogin()
     {
         if (Auth::check()) {
@@ -20,34 +25,89 @@ class AuthController extends Controller
         return view('auth.login', compact('members'));
     }
 
+    /**
+     * Handle authentication attempt with Tyro-Login compatibility.
+     */
     public function login(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'pin' => 'required|string',
-        ]);
+        $throttleKey = Str::transliterate(
+            Str::lower($request->input('login', $request->input('name', 'guest'))).'|'.$request->ip()
+        );
 
-        $user = User::where('name', $request->input('name'))->first();
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            return back()->withErrors([
+                'login' => "Too many failed login attempts. Please try again in {$seconds} seconds.",
+            ])->withInput();
+        }
+
+        $credential = $request->input('login') ?: $request->input('name');
+        $password = $request->input('password') ?: $request->input('pin');
+
+        if (! $credential || ! $password) {
+            return back()->withErrors([
+                'login' => 'Please select a member or enter your credentials and PIN/password.',
+            ])->withInput();
+        }
+
+        // Look up by Name, Username, or Email
+        $user = User::where('name', $credential)
+            ->orWhere('username', $credential)
+            ->orWhere('email', $credential)
+            ->first();
 
         if (! $user) {
-            return back()->withErrors(['pin' => 'Invalid member or PIN.'])->withInput();
+            RateLimiter::hit($throttleKey, 60);
+
+            return back()->withErrors([
+                'login' => 'Account not found. Please verify your selected member name or credentials.',
+            ])->withInput();
         }
 
-        if (Hash::check($request->input('pin'), $user->password) || $request->input('pin') === $user->username) {
-            Auth::login($user, true);
-
-            return redirect()->route('dashboard')->with('success', 'Logged in successfully as '.$user->name);
+        // Check if user is suspended
+        if (method_exists($user, 'isSuspended') && $user->isSuspended()) {
+            return back()->withErrors([
+                'login' => 'Your account has been suspended. Please contact the administrator.',
+            ])->withInput();
         }
 
-        return back()->withErrors(['pin' => 'Incorrect PIN for '.$user->name])->withInput();
+        // Validate Password or Member PIN
+        $isValidPassword = Hash::check($password, $user->password)
+            || $password === $user->username;
+
+        if (! $isValidPassword) {
+            RateLimiter::hit($throttleKey, 60);
+
+            return back()->withErrors([
+                'pin' => 'Incorrect PIN or password for '.$user->name.'.',
+            ])->withInput();
+        }
+
+        // Success - clear rate limiting and authenticate
+        RateLimiter::clear($throttleKey);
+
+        $remember = $request->boolean('remember', true);
+        Auth::login($user, $remember);
+        $request->session()->regenerate();
+
+        $intended = $request->session()->pull('url.intended');
+        if ($intended) {
+            return redirect($intended)->with('success', 'Logged in successfully as '.$user->name);
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Logged in successfully as '.$user->name);
     }
 
+    /**
+     * Log out the current user.
+     */
     public function logout(Request $request)
     {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')->with('success', 'You have been logged out.');
+        return redirect()->route('tyro-login.login')->with('success', 'You have been logged out successfully.');
     }
 }

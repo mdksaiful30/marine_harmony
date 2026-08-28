@@ -181,4 +181,32 @@ class MarineHarmonyTest extends TestCase
         $depositsResource->assertStatus(200);
         $depositsResource->assertSee('Deposits');
     }
+
+    public function test_login_with_email_or_username_and_remember_me(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $this->assertNotNull($admin);
+
+        // Login via username
+        $responseUsername = $this->post('/login', [
+            'login' => $admin->username,
+            'pin' => 'nizam',
+            'remember' => '1',
+        ]);
+        $responseUsername->assertRedirect('/dashboard');
+        $this->assertAuthenticatedAs($admin);
+
+        // Logout
+        $this->post('/logout')->assertRedirect('/login');
+        $this->assertGuest();
+
+        // Login via email
+        $responseEmail = $this->post('/login', [
+            'login' => $admin->email,
+            'password' => 'nizam',
+            'remember' => '1',
+        ]);
+        $responseEmail->assertRedirect('/dashboard');
+        $this->assertAuthenticatedAs($admin);
+    }
 }

@@ -110,6 +110,7 @@ class MemberSeeder extends Seeder
                 ['name' => $m['name']],
                 [
                     'username' => $m['username'],
+                    'email' => $m['username'].'@marineharmony.com',
                     'password' => Hash::make($m['password']),
                     'role' => $m['role'],
                     'avatar' => $m['avatar'],
