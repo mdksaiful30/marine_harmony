@@ -7,6 +7,7 @@ use HasinHayder\TyroLogin\Traits\HasTwoFactorAuth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -34,6 +35,27 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            if (empty($user->username)) {
+                $base = Str::slug($user->name, '');
+                if (empty($base) && ! empty($user->email)) {
+                    $base = explode('@', $user->email)[0];
+                }
+                $username = $base ?: 'user';
+                $count = 1;
+                while (static::where('username', $username)->exists()) {
+                    $username = $base.$count++;
+                }
+                $user->username = $username;
+            }
+            if (empty($user->role)) {
+                $user->role = 'member';
+            }
+        });
     }
 
     public function isAdmin(): bool

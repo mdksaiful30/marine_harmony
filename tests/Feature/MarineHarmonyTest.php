@@ -209,4 +209,37 @@ class MarineHarmonyTest extends TestCase
         $responseEmail->assertRedirect('/dashboard');
         $this->assertAuthenticatedAs($admin);
     }
+
+    public function test_user_can_view_registration_and_sign_up(): void
+    {
+        $response = $this->get('/register');
+        $response->assertStatus(200);
+        $response->assertSee('Create an account');
+
+        $registerResponse = $this->post('/register', [
+            'name' => 'New Test Member',
+            'email' => 'newmember@marineharmony.com',
+            'password' => 'SecretPassword123!',
+            'password_confirmation' => 'SecretPassword123!',
+        ]);
+
+        $registerResponse->assertRedirect('/dashboard');
+        $this->assertDatabaseHas('users', [
+            'email' => 'newmember@marineharmony.com',
+            'name' => 'New Test Member',
+            'role' => 'member',
+        ]);
+
+        $newUser = User::where('email', 'newmember@marineharmony.com')->first();
+        $this->assertNotNull($newUser);
+        $this->assertNotNull($newUser->username);
+        $this->assertAuthenticatedAs($newUser);
+    }
+
+    public function test_forgot_password_screen_renders(): void
+    {
+        $response = $this->get('/forgot-password');
+        $response->assertStatus(200);
+        $response->assertSee('Reset');
+    }
 }

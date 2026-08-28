@@ -79,10 +79,10 @@
                         Forgot PIN?
                     </a>
                 </div>
-                
+
                 <div style="position: relative; display: flex; align-items: center;">
                     <input id="loginPin" name="pin" type="password" placeholder="Enter your PIN or password" required autofocus style="width: 100%; padding: 11px 45px 11px 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 14px; background: #fff; transition: border-color 0.2s;">
-                    
+
                     <button type="button" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; color: var(--muted); padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
                         <svg id="eyeIconOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>

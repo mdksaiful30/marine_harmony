@@ -242,26 +242,19 @@ return [
     */
     'branding' => [
         // Your application name shown on all auth pages
-        // Defaults to APP_NAME from Laravel config, or 'Laravel' if not set
-        'app_name' => env('TYRO_LOGIN_APP_NAME', env('APP_NAME', 'Laravel')),
+        'app_name' => env('TYRO_LOGIN_APP_NAME', 'Marine Harmony'),
 
-        // Logo URL (recommended: SVG or high-res PNG)
-        // Set to null to use text-based logo with app name
-        // Example: 'https://yourapp.com/logo.svg' or '/images/logo.png'
-        'logo' => env('TYRO_LOGIN_LOGO', null),
+        // Logo URL
+        'logo' => env('TYRO_LOGIN_LOGO', 'images/logo.jpg'),
 
-        // Dark mode logo URL (falls back to the light logo when not set)
-        // Example: 'https://yourapp.com/logo-dark.svg' or '/images/logo-dark.png'
-        'logo_dark' => env('TYRO_LOGIN_LOGO_DARK', null),
+        // Dark mode logo URL
+        'logo_dark' => env('TYRO_LOGIN_LOGO_DARK', 'images/logo.jpg'),
 
         // Logo height for proper display scaling
-        // Accepts any valid CSS height value (px, rem, etc.)
-        // Common values: '32px', '48px', '3rem'
-        'logo_height' => env('TYRO_LOGIN_LOGO_HEIGHT', '48px'),
+        'logo_height' => env('TYRO_LOGIN_LOGO_HEIGHT', '64px'),
 
-        // Logo border radius for rounded logos (e.g. '50%' for full circle, '8px' for rounded corners)
-        // Default is '0' to maintain backward compatibility
-        'logo_border_radius' => env('TYRO_LOGIN_LOGO_BORDER_RADIUS', '0'),
+        // Logo border radius for rounded logos
+        'logo_border_radius' => env('TYRO_LOGIN_LOGO_BORDER_RADIUS', '50%'),
     ],
 
     /*
@@ -286,9 +279,9 @@ return [
     |
     */
     'redirects' => [
-        'after_login' => env('TYRO_LOGIN_REDIRECT_AFTER_LOGIN', '/'),
+        'after_login' => env('TYRO_LOGIN_REDIRECT_AFTER_LOGIN', '/dashboard'),
         'after_logout' => env('TYRO_LOGIN_REDIRECT_AFTER_LOGOUT', '/login'),
-        'after_register' => env('TYRO_LOGIN_REDIRECT_AFTER_REGISTER', '/'),
+        'after_register' => env('TYRO_LOGIN_REDIRECT_AFTER_REGISTER', '/dashboard'),
         'after_email_verification' => env('TYRO_LOGIN_REDIRECT_AFTER_EMAIL_VERIFICATION', '/login'),
     ],
 
