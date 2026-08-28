@@ -64,6 +64,9 @@
             @endif
             <a href="{{ route('members.index') }}" class="nav-btn {{ request()->routeIs('members.*') ? 'active' : '' }}">Members</a>
             <a href="{{ route('reports.index') }}" class="nav-btn {{ request()->routeIs('reports.*') ? 'active' : '' }}">Reports</a>
+            @if(Auth::user()->isAdmin())
+                <a href="{{ url('/admin') }}" class="nav-btn {{ request()->is('admin*') ? 'active' : '' }}">⚙ Admin Panel</a>
+            @endif
         </nav>
 
         @if(session('success'))

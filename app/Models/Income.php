@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use HasinHayder\TyroDashboard\Concerns\HasCrud;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Income extends Model
 {
-    use HasFactory;
+    use HasCrud, HasFactory;
 
     public $incrementing = false;
 

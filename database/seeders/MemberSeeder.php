@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use HasinHayder\Tyro\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -100,8 +101,12 @@ class MemberSeeder extends Seeder
             ],
         ];
 
+        $adminRole = class_exists(Role::class) ? Role::firstOrCreate(['slug' => 'admin'], ['name' => 'Administrator']) : null;
+        $superAdminRole = class_exists(Role::class) ? Role::firstOrCreate(['slug' => 'super-admin'], ['name' => 'Super Admin']) : null;
+        $userRole = class_exists(Role::class) ? Role::firstOrCreate(['slug' => 'user'], ['name' => 'User']) : null;
+
         foreach ($members as $m) {
-            User::updateOrCreate(
+            $user = User::updateOrCreate(
                 ['name' => $m['name']],
                 [
                     'username' => $m['username'],
@@ -110,6 +115,12 @@ class MemberSeeder extends Seeder
                     'avatar' => $m['avatar'],
                 ]
             );
+
+            if ($user->isAdmin() && $adminRole && $superAdminRole) {
+                $user->roles()->syncWithoutDetaching([$adminRole->id, $superAdminRole->id]);
+            } elseif ($userRole) {
+                $user->roles()->syncWithoutDetaching([$userRole->id]);
+            }
         }
     }
 }

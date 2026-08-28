@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
+use HasinHayder\Tyro\Concerns\HasTyroRoles;
+use HasinHayder\TyroLogin\Traits\HasTwoFactorAuth;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+    use HasApiTokens, HasTwoFactorAuth, HasTyroRoles;
     use HasFactory, Notifiable;
 
     protected $fillable = [

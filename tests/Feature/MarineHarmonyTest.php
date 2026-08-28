@@ -168,4 +168,17 @@ class MarineHarmonyTest extends TestCase
             'approved_by' => $admin->name,
         ]);
     }
+
+    public function test_admin_can_access_tyro_dashboard_and_resources(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $this->assertNotNull($admin);
+
+        $response = $this->actingAs($admin)->get('/admin');
+        $response->assertStatus(200);
+
+        $depositsResource = $this->actingAs($admin)->get('/admin/resources/deposits');
+        $depositsResource->assertStatus(200);
+        $depositsResource->assertSee('Deposits');
+    }
 }

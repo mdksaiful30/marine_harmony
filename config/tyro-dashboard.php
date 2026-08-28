@@ -1,0 +1,373 @@
+<?php
+
+use App\Models\Deposit;
+use App\Models\Expense;
+use App\Models\Income;
+use App\Models\Investment;
+use App\Models\Setting;
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Route Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure the dashboard routes prefix and middleware.
+    |
+    */
+    'routes' => [
+        'prefix' => env('TYRO_DASHBOARD_PREFIX', 'admin'),
+        'middleware' => ['web', 'auth'],
+        'name_prefix' => 'tyro-dashboard.',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Roles
+    |--------------------------------------------------------------------------
+    |
+    | Users with these roles will have full access to admin features
+    | (user management, role management, privilege management, settings).
+    |
+    */
+    'admin_roles' => ['admin', 'super-admin'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Model
+    |--------------------------------------------------------------------------
+    |
+    | The user model to use throughout the dashboard.
+    |
+    */
+    'user_model' => env('TYRO_DASHBOARD_USER_MODEL', 'App\\Models\\User'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    |
+    | Default pagination settings for lists.
+    |
+    */
+    'pagination' => [
+        'users' => 15,
+        'roles' => 15,
+        'privileges' => 15,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Branding
+    |--------------------------------------------------------------------------
+    |
+    | Customize the dashboard appearance.
+    |
+    */
+    'branding' => [
+        'app_name' => env('TYRO_DASHBOARD_APP_NAME', env('APP_NAME', 'Marine Harmony')),
+        'logo' => env('TYRO_DASHBOARD_LOGO', 'images/logo.jpg'),
+        'logo_height' => env('TYRO_DASHBOARD_LOGO_HEIGHT', '36px'),
+        'favicon' => env('TYRO_DASHBOARD_FAVICON', 'favicon.ico'),
+
+        // Sidebar colors (supports any CSS color value: hex, rgb, hsl, etc.)
+        'sidebar_bg' => env('TYRO_DASHBOARD_SIDEBAR_BG', null), // Custom background color for sidebar
+        'sidebar_text' => env('TYRO_DASHBOARD_SIDEBAR_TEXT', null), // Custom text color for sidebar
+        'sidebar_primary' => env('TYRO_DASHBOARD_SIDEBAR_PRIMARY', null), // Custom text color for sidebar
+        'sidebar_accent' => env('TYRO_DASHBOARD_SIDEBAR_ACCENT', null), // Custom text color for sidebar
+        'sidebar_accent_foreground' => env('TYRO_DASHBOARD_SIDEBAR_ACCENT_FOREGROUND', null), // Custom text color for sidebar
+        'sidebar_header_border' => env('TYRO_DASHBOARD_SIDEBAR_HEADER_BORDER', null), // Custom text color for sidebar
+        'sidebar_accordion_compact' => filter_var(env('TYRO_DASHBOARD_SIDEBAR_ACCORDION_COMPACT', false), FILTER_VALIDATE_BOOLEAN),
+        'sidebar_accordion_open_sections' => (int) env('TYRO_DASHBOARD_SIDEBAR_ACCORDION_OPEN_SECTIONS', 1),
+        'sidebar_logo' => env('TYRO_DASHBOARD_SIDEBAR_LOGO', null),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Bar
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for the admin notice bar displayed at the top of the dashboard.
+    |
+    */
+    'admin_bar' => [
+        'enabled' => env('TYRO_DASHBOARD_ADMIN_BAR_ENABLED', false),
+        'message' => env('TYRO_DASHBOARD_ADMIN_BAR_MESSAGE', ''),
+        'bg_color' => env('TYRO_DASHBOARD_ADMIN_BAR_BG_COLOR', '#000000'),
+        'text_color' => env('TYRO_DASHBOARD_ADMIN_BAR_TEXT_COLOR', '#ffffff'),
+        'align' => env('TYRO_DASHBOARD_ADMIN_BAR_ALIGN', 'left'),
+        'height' => env('TYRO_DASHBOARD_ADMIN_BAR_HEIGHT', '40px'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Collapsible Sidebar
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable the collapsible sidebar feature.
+    |
+    */
+    'collapsible_sidebar' => env('TYRO_DASHBOARD_COLLAPSIBLE_SIDEBAR', true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Features
+    |--------------------------------------------------------------------------
+    |
+    | Enable or disable specific dashboard features.
+    |
+    */
+    'features' => [
+        'user_management' => true,
+        'role_management' => true,
+        'privilege_management' => true,
+        'settings_management' => true,
+        'profile_management' => true,
+        'invitation_system' => env('TYRO_DASHBOARD_ENABLE_INVITATION', true),
+        'audit_logs' => env('TYRO_DASHBOARD_ENABLE_AUDIT_LOGS', true),
+        'system_settings' => env('TYRO_DASHBOARD_ENABLE_SYSTEM_SETTINGS', true),
+        'checkpoints' => env('TYRO_DASHBOARD_ENABLE_CHECKPOINTS', true),
+        'health' => env('TYRO_DASHBOARD_ENABLE_HEALTH', true),
+        'log_viewer' => env('TYRO_DASHBOARD_ENABLE_LOG_VIEWER', true),
+        'show_roles_menu' => env('TYRO_DASHBOARD_SHOW_ROLES_MENU', true),
+        'show_privileges_menu' => env('TYRO_DASHBOARD_SHOW_PRIVILEGES_MENU', true),
+        'show_resources_menu' => env('TYRO_DASHBOARD_SHOW_RESOURCES_MENU', true),
+        'activity_log' => false, // Future feature
+        'profile_photo_upload' => env('TYRO_DASHBOARD_ENABLE_PROFILE_PHOTO', false),
+        'gravatar' => env('TYRO_DASHBOARD_ENABLE_GRAVATAR', false),
+        'heartbeat' => env('TYRO_DASHBOARD_ENABLE_HEARTBEAT', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Heartbeat
+    |--------------------------------------------------------------------------
+    |
+    | Online-user detection window (in seconds) for the cache-based heartbeat.
+    | Should be at least twice the 5-minute frontend interval so a single
+    | missed beat does not mark a user offline.
+    |
+    */
+    'heartbeat_ttl' => (int) env('TYRO_DASHBOARD_HEARTBEAT_TTL', 600),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Protected Resources
+    |--------------------------------------------------------------------------
+    |
+    | Resources that cannot be deleted through the dashboard.
+    |
+    */
+    'protected' => [
+        'roles' => ['admin', 'super-admin', 'user'],
+        'users' => [], // Add user IDs that cannot be deleted
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard Widgets
+    |--------------------------------------------------------------------------
+    |
+    | Configure which widgets appear on the dashboard home.
+    |
+    */
+    'widgets' => [
+        'stats' => true,
+        'recent_users' => true,
+        'role_distribution' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Notifications
+    |--------------------------------------------------------------------------
+    |
+    | Configure dashboard notifications behavior.
+    |
+    */
+    'notifications' => [
+        'show_flash_messages' => true,
+        'auto_dismiss_seconds' => 5,
+        'notification_style' => env('TYRO_DASHBOARD_NOTIFICATION_STYLE', 'legacy'), // 'legacy' or 'toast'
+        'toast_position' => env('TYRO_DASHBOARD_TOAST_POSITION', 'bottom-right'), // 'top-right' or 'bottom-right'
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | File Upload Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure default settings for file uploads in resources.
+    |
+    */
+    'uploads' => [
+        'disk' => env('TYRO_DASHBOARD_UPLOAD_DISK', 'public'),
+        'directory' => env('TYRO_DASHBOARD_UPLOAD_DIRECTORY', 'uploads'),
+        'auto_delete_on_resource_delete' => env('TYRO_DASHBOARD_AUTO_DELETE_UPLOADS', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Profile Photo Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure settings for user profile photos and gravatar support.
+    |
+    */
+    'profile_photo' => [
+        'disk' => env('TYRO_DASHBOARD_PROFILE_PHOTO_DISK', 'public'),
+        'directory' => env('TYRO_DASHBOARD_PROFILE_PHOTO_DIRECTORY', 'profile_images'),
+        'max_size' => env('TYRO_DASHBOARD_PROFILE_PHOTO_MAX_SIZE', 10240), // in KB (default 10MB)
+        'width' => env('TYRO_DASHBOARD_PROFILE_PHOTO_WIDTH', 400),
+        'height' => env('TYRO_DASHBOARD_PROFILE_PHOTO_HEIGHT', 400),
+        'quality' => env('TYRO_DASHBOARD_PROFILE_PHOTO_QUALITY', 90),
+        'crop_position' => env('TYRO_DASHBOARD_PROFILE_PHOTO_CROP', 'center'), // top, center, bottom
+        'allowed_types' => ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+        'auto_delete_on_user_delete' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dynamic Resources (CRUD)
+    |--------------------------------------------------------------------------
+    |
+    | Define your resources here to automatically generate CRUD interfaces.
+    |
+    */
+    // 'resources' => [
+    //     // Example:
+    //     // 'posts' => [
+    //     //     'model' => 'App\Models\Post',
+    //     //     'title' => 'Posts',
+    //     //     'icon' => '<svg>...</svg>', // Optional SVG icon
+    //     //     'fields' => [
+    //     //         'title' => ['type' => 'text', 'label' => 'Title', 'rules' => 'required'],
+    //     //         'content' => ['type' => 'textarea', 'label' => 'Content'],
+    //     //     ],
+    //     // ],
+    // ],
+    'resources' => [
+        'deposits' => [
+            'model' => Deposit::class,
+            'title' => 'Deposits',
+            'roles' => ['admin', 'super-admin'],
+            'fields' => [
+                'id' => ['type' => 'text', 'label' => 'Deposit ID', 'rules' => 'required', 'searchable' => true],
+                'member' => ['type' => 'text', 'label' => 'Member Name', 'rules' => 'required', 'searchable' => true, 'sortable' => true],
+                'date' => ['type' => 'date', 'label' => 'Date', 'sortable' => true],
+                'period' => ['type' => 'text', 'label' => 'Period (Months)', 'searchable' => true],
+                'method' => ['type' => 'select', 'label' => 'Payment Method', 'options' => ['Bank' => 'Bank', 'Mobile Banking' => 'Mobile Banking', 'Cash' => 'Cash', 'Historical Record' => 'Historical Record', 'Historical Balance' => 'Historical Balance']],
+                'amount' => ['type' => 'number', 'label' => 'Amount (BDT)', 'rules' => 'required|numeric|min:0', 'sortable' => true],
+                'status' => ['type' => 'select', 'label' => 'Approval Status', 'options' => ['Approved' => 'Approved', 'Pending' => 'Pending', 'Rejected' => 'Rejected'], 'sortable' => true],
+                'remarks' => ['type' => 'textarea', 'label' => 'Remarks'],
+            ],
+        ],
+        'incomes' => [
+            'model' => Income::class,
+            'title' => 'Income',
+            'roles' => ['admin', 'super-admin'],
+            'fields' => [
+                'id' => ['type' => 'text', 'label' => 'Income ID', 'rules' => 'required', 'searchable' => true],
+                'date' => ['type' => 'date', 'label' => 'Date', 'sortable' => true],
+                'source' => ['type' => 'text', 'label' => 'Source', 'searchable' => true, 'sortable' => true],
+                'purpose' => ['type' => 'text', 'label' => 'Purpose', 'searchable' => true],
+                'amount' => ['type' => 'number', 'label' => 'Amount (BDT)', 'rules' => 'required|numeric|min:0', 'sortable' => true],
+                'status' => ['type' => 'select', 'label' => 'Status', 'options' => ['Approved' => 'Approved', 'Pending' => 'Pending', 'Rejected' => 'Rejected']],
+                'details' => ['type' => 'textarea', 'label' => 'Details'],
+            ],
+        ],
+        'expenses' => [
+            'model' => Expense::class,
+            'title' => 'Expenditures',
+            'roles' => ['admin', 'super-admin'],
+            'fields' => [
+                'id' => ['type' => 'text', 'label' => 'Expense ID', 'rules' => 'required', 'searchable' => true],
+                'date' => ['type' => 'date', 'label' => 'Date', 'sortable' => true],
+                'category' => ['type' => 'text', 'label' => 'Category', 'searchable' => true, 'sortable' => true],
+                'description' => ['type' => 'text', 'label' => 'Description', 'searchable' => true],
+                'amount' => ['type' => 'number', 'label' => 'Amount (BDT)', 'rules' => 'required|numeric|min:0', 'sortable' => true],
+                'status' => ['type' => 'select', 'label' => 'Status', 'options' => ['Approved' => 'Approved', 'Pending' => 'Pending', 'Rejected' => 'Rejected']],
+                'details' => ['type' => 'textarea', 'label' => 'Details'],
+            ],
+        ],
+        'investments' => [
+            'model' => Investment::class,
+            'title' => 'Investments',
+            'roles' => ['admin', 'super-admin'],
+            'fields' => [
+                'id' => ['type' => 'text', 'label' => 'Investment ID', 'rules' => 'required', 'searchable' => true],
+                'date' => ['type' => 'date', 'label' => 'Date', 'sortable' => true],
+                'institution' => ['type' => 'text', 'label' => 'Institution / Bank', 'searchable' => true, 'sortable' => true],
+                'purpose' => ['type' => 'text', 'label' => 'Purpose', 'searchable' => true],
+                'amount' => ['type' => 'number', 'label' => 'Amount (BDT)', 'rules' => 'required|numeric|min:0', 'sortable' => true],
+                'auto_renew' => ['type' => 'boolean', 'label' => 'Auto Renew'],
+                'maturity_date' => ['type' => 'date', 'label' => 'Maturity Date'],
+                'status' => ['type' => 'select', 'label' => 'Status', 'options' => ['Approved' => 'Approved', 'Pending' => 'Pending', 'Rejected' => 'Rejected']],
+            ],
+        ],
+        'settings' => [
+            'model' => Setting::class,
+            'title' => 'App Settings',
+            'roles' => ['admin', 'super-admin'],
+            'fields' => [
+                'key' => ['type' => 'text', 'label' => 'Setting Key', 'rules' => 'required', 'searchable' => true, 'sortable' => true],
+                'value' => ['type' => 'textarea', 'label' => 'Value'],
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Resource UI Settings
+    |--------------------------------------------------------------------------
+    |
+    | Configure the appearance and behavior of resource forms and lists.
+    |
+    */
+    'resource_ui' => [
+        'show_global_errors' => env('TYRO_SHOW_GLOBAL_ERRORS', true),
+        'show_field_errors' => env('TYRO_SHOW_FIELD_ERRORS', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Disable Examples
+    |--------------------------------------------------------------------------
+    |
+    | If this is true, the "Examples" section in the sidebar will be hidden
+    | and the example routes will be disabled.
+    |
+    */
+    'disable_examples' => env('TYRO_DASHBOARD_DISABLE_EXAMPLES', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Log Viewer
+    |--------------------------------------------------------------------------
+    |
+    | Configure the admin log viewer for application log files in storage/logs.
+    |
+    */
+    'log_viewer' => [
+        'max_read_bytes' => env('TYRO_DASHBOARD_LOG_MAX_READ_BYTES', 16777216), // tail cap: 16MB
+        'per_page' => 25,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Media
+    |--------------------------------------------------------------------------
+    |
+    | Configure media library API keys for external image import providers.
+    |
+    */
+    'media' => [
+        'max_size' => env('TYRO_DASHBOARD_MEDIA_MAX_SIZE', 10240),
+        'api_keys' => [
+            'freepik' => env('TYRO_DASHBOARD_FREEPIK_KEY'),
+            'pexels' => env('TYRO_DASHBOARD_PEXELS_KEY'),
+            'unsplash' => env('TYRO_DASHBOARD_UNSPLASH_ACCESS_KEY'),
+            'pixabay' => env('TYRO_DASHBOARD_PIXABAY_KEY'),
+        ],
+    ],
+];
