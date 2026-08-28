@@ -8,21 +8,37 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Laravel\Passkeys\Passkeys;
 
 class AuthController extends Controller
 {
     /**
-     * Show the login form.
+     * Show the login form with dynamic Tyro-Login configurations.
      */
-    public function showLogin()
+    public function showLogin(Request $request)
     {
         if (Auth::check()) {
             return redirect()->route('dashboard');
         }
 
         $members = User::orderBy('id')->get();
+        $loginField = config('tyro-login.login_field', 'both');
 
-        return view('auth.login', compact('members'));
+        return view('tyro-login::login', [
+            'layout' => config('tyro-login.layout', 'centered'),
+            'branding' => config('tyro-login.branding'),
+            'backgroundImage' => config('tyro-login.background_image'),
+            'videoBackground' => config('tyro-login.video_background'),
+            'features' => config('tyro-login.features', []),
+            'registrationEnabled' => config('tyro-login.registration.enabled', true),
+            'pageContent' => config('tyro-login.pages.login', []),
+            'captchaEnabled' => config('tyro-login.captcha.enabled_login', false),
+            'captchaQuestion' => null,
+            'captchaConfig' => config('tyro-login.captcha', []),
+            'loginField' => $loginField,
+            'passkeysEnabled' => config('tyro-login.passkeys.enabled', false) && class_exists(Passkeys::class),
+            'members' => $members,
+        ]);
     }
 
     /**

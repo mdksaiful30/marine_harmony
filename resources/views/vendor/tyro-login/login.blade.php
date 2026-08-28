@@ -77,51 +77,97 @@ $webauthnToken = $passkeysEnabled ? ' webauthn' : '';
             @endif
 
             <!-- Login Form -->
-            <form method="POST" action="{{ route('tyro-login.login.submit') }}">
+            <form method="POST" action="{{ route('tyro-login.login.submit') }}" id="loginForm">
                 @csrf
 
-                <!-- Login Field (Email, Username, or Both) -->
-                @if(($loginField ?? 'email') === 'both')
-                <div class="form-group">
-                    <label for="login" class="form-label">Email or Username</label>
-                    <input type="text" id="login" name="login" class="form-input @error('login') is-invalid @enderror" value="{{ old('login') }}" required autocomplete="username{{ $webauthnToken }}" autofocus placeholder="Email or username">
-                    @error('login')
-                    <span class="error-message">{{ $message }}</span>
-                    @enderror
+                @if(isset($members) && $members->count())
+                <!-- Login Mode Switcher Tabs -->
+                <div class="login-tabs" style="display: flex; background: var(--muted); border-radius: 12px; padding: 4px; margin-bottom: 1.25rem; border: 1px solid var(--border);">
+                    <button type="button" id="tabMember" onclick="switchLoginMode('member')" style="flex: 1; border: 0; padding: 8px 12px; border-radius: 9px; font-weight: 700; font-size: 13px; cursor: pointer; background: #1683c7; color: #fff; transition: all 0.2s;">
+                        Quick Member Select
+                    </button>
+                    <button type="button" id="tabManual" onclick="switchLoginMode('manual')" style="flex: 1; border: 0; padding: 8px 12px; border-radius: 9px; font-weight: 700; font-size: 13px; cursor: pointer; background: transparent; color: var(--foreground); transition: all 0.2s;">
+                        Email / Username
+                    </button>
                 </div>
-                @elseif(($loginField ?? 'email') === 'username')
-                <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" id="username" name="username" class="form-input @error('username') is-invalid @enderror" value="{{ old('username') }}" required autocomplete="username{{ $webauthnToken }}" autofocus placeholder="Username">
-                    @error('username')
-                    <span class="error-message">{{ $message }}</span>
-                    @enderror
-                </div>
-                @else
-                <div class="form-group">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" id="email" name="email" class="form-input @error('email') is-invalid @enderror" value="{{ old('email') }}" required autocomplete="email{{ $webauthnToken }}" autofocus placeholder="email@example.com">
-                    @error('email')
-                    <span class="error-message">{{ $message }}</span>
-                    @enderror
+
+                <!-- 1. Member Quick Select Container -->
+                <div id="memberSelectContainer" class="form-group">
+                    <label for="loginUser" class="form-label">Select Member Account</label>
+                    <select id="loginUser" name="name" onchange="updateRoleHint(this)" class="form-input" style="font-weight: 600;">
+                        @foreach($members as $m)
+                            <option value="{{ $m->name }}" data-role="{{ $m->role }}" {{ (old('name') === $m->name || (empty(old('name')) && $m->isAdmin())) ? 'selected' : '' }}>
+                                {{ $m->name }} ({{ $m->isAdmin() ? 'Admin' : 'Member' }})
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 @endif
 
+                <!-- 2. Manual Username/Email Container -->
+                <div id="manualLoginContainer" @if(isset($members) && $members->count()) style="display: none;" @endif>
+                    <!-- Login Field (Email, Username, or Both) -->
+                    @if(($loginField ?? 'email') === 'both')
+                    <div class="form-group">
+                        <label for="login" class="form-label">Email or Username</label>
+                        <input type="text" id="login" name="login" class="form-input @error('login') is-invalid @enderror" value="{{ old('login') }}" @if(!isset($members) || !$members->count()) required autofocus @endif autocomplete="username{{ $webauthnToken }}" placeholder="Email or username">
+                        @error('login')
+                        <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    @elseif(($loginField ?? 'email') === 'username')
+                    <div class="form-group">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" id="username" name="username" class="form-input @error('username') is-invalid @enderror" value="{{ old('username') }}" @if(!isset($members) || !$members->count()) required autofocus @endif autocomplete="username{{ $webauthnToken }}" placeholder="Username">
+                        @error('username')
+                        <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    @else
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" name="email" class="form-input @error('email') is-invalid @enderror" value="{{ old('email') }}" @if(!isset($members) || !$members->count()) required autofocus @endif autocomplete="email{{ $webauthnToken }}" placeholder="email@example.com">
+                        @error('email')
+                        <span class="error-message">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    @endif
+                </div>
+
                 @if(!($features['disable_password'] ?? false))
-                <!-- Password Field -->
+                <!-- Password Field with Show/Hide Eye Toggle -->
                 <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" required autocomplete="current-password" placeholder="Password">
+                    <label for="password" class="form-label">Password / PIN</label>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="password" name="password" class="form-input @error('password') is-invalid @enderror" required autocomplete="current-password" placeholder="Enter your PIN or password" style="padding-right: 45px;">
+                        <button type="button" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; color: var(--muted-foreground); padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
+                            <svg id="eyeIconOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg id="eyeIconClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; display: none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
                     @error('password')
                     <span class="error-message">{{ $message }}</span>
                     @enderror
+
+                    @if(isset($members) && $members->count())
+                    <!-- Dynamic Role Hint -->
+                    <div id="roleHintBox" style="margin-top: 8px; font-size: 12px; color: var(--muted-foreground); line-height: 1.4; padding: 6px 10px; background: var(--muted); border-radius: 8px; border: 1px solid var(--border);">
+                        <span id="roleHint">Admin accounts manage approvals, balance reconciliations, and member records.</span>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Remember Me & Forgot Password -->
                 <div class="form-options">
                     @if($features['remember_me'] ?? true)
                     <div class="checkbox-group">
-                        <input type="checkbox" id="remember" name="remember" class="checkbox-input" {{ old('remember') ? 'checked' : '' }}>
+                        <input type="checkbox" id="remember" name="remember" value="1" class="checkbox-input" {{ old('remember', '1') ? 'checked' : '' }}>
                         <label for="remember" class="checkbox-label">Remember me</label>
                     </div>
                     @else
@@ -150,7 +196,7 @@ $webauthnToken = $passkeysEnabled ? ' webauthn' : '';
 
                 @if(!($features['disable_password'] ?? false))
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">
                     Log in
                 </button>
                 @endif
@@ -274,4 +320,79 @@ $webauthnToken = $passkeysEnabled ? ' webauthn' : '';
         -moz-appearance: textfield;
     }
 </style>
+
+<script>
+function switchLoginMode(mode) {
+    const memberBtn = document.getElementById('tabMember');
+    const manualBtn = document.getElementById('tabManual');
+    const memberContainer = document.getElementById('memberSelectContainer');
+    const manualContainer = document.getElementById('manualLoginContainer');
+    const userSelect = document.getElementById('loginUser');
+    const manualInput = document.getElementById('login') || document.getElementById('username') || document.getElementById('email');
+
+    if (!memberBtn || !manualBtn) return;
+
+    if (mode === 'member') {
+        memberBtn.style.background = '#1683c7';
+        memberBtn.style.color = '#fff';
+        manualBtn.style.background = 'transparent';
+        manualBtn.style.color = 'var(--foreground)';
+
+        if (memberContainer) memberContainer.style.display = 'block';
+        if (manualContainer) manualContainer.style.display = 'none';
+        if (userSelect) userSelect.removeAttribute('disabled');
+        if (manualInput) manualInput.setAttribute('disabled', 'disabled');
+    } else {
+        manualBtn.style.background = '#1683c7';
+        manualBtn.style.color = '#fff';
+        memberBtn.style.background = 'transparent';
+        memberBtn.style.color = 'var(--foreground)';
+
+        if (memberContainer) memberContainer.style.display = 'none';
+        if (manualContainer) manualContainer.style.display = 'block';
+        if (manualInput) {
+            manualInput.removeAttribute('disabled');
+            manualInput.focus();
+        }
+        if (userSelect) userSelect.setAttribute('disabled', 'disabled');
+    }
+}
+
+function togglePasswordVisibility() {
+    const pinInput = document.getElementById('password');
+    const eyeOpen = document.getElementById('eyeIconOpen');
+    const eyeClosed = document.getElementById('eyeIconClosed');
+
+    if (!pinInput) return;
+
+    if (pinInput.type === 'password') {
+        pinInput.type = 'text';
+        if (eyeOpen) eyeOpen.style.display = 'none';
+        if (eyeClosed) eyeClosed.style.display = 'block';
+    } else {
+        pinInput.type = 'password';
+        if (eyeOpen) eyeOpen.style.display = 'block';
+        if (eyeClosed) eyeClosed.style.display = 'none';
+    }
+}
+
+function updateRoleHint(select) {
+    if (!select) return;
+    const selectedOption = select.options[select.selectedIndex];
+    if (!selectedOption) return;
+    const role = selectedOption.getAttribute('data-role');
+    const hint = document.getElementById('roleHint');
+    if (!hint) return;
+    if (role === 'admin') {
+        hint.textContent = 'Admin account: full access to Approval Queue, Dynamic CRUD, and System Balance.';
+    } else {
+        hint.textContent = 'Member account: view-only approved ledger, submit deposit slips and expense receipts.';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('loginUser');
+    if (select) updateRoleHint(select);
+});
+</script>
 @endsection

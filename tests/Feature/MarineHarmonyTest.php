@@ -20,6 +20,11 @@ class MarineHarmonyTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Marine Harmony');
         $response->assertSee('Mohammad Nizam Uddin');
+        $response->assertSee('Quick Member Select');
+        $response->assertSee('Email / Username');
+        $response->assertSee('Remember me');
+        $response->assertSee('Forgot password?');
+        $response->assertSee('Sign up');
     }
 
     public function test_admin_can_login_and_view_dashboard(): void
