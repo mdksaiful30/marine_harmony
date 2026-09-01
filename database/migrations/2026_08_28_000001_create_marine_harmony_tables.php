@@ -53,6 +53,7 @@ return new class extends Migration
             $table->string('submitted_by')->nullable();
             $table->string('approved_by')->nullable();
             $table->date('approval_date')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->boolean('historical')->default(false);
             $table->string('historical_type')->nullable();
             $table->timestamps();
@@ -70,6 +71,7 @@ return new class extends Migration
             $table->string('submitted_by')->nullable();
             $table->string('approved_by')->nullable();
             $table->date('approval_date')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->boolean('historical')->default(false);
             $table->string('historical_type')->nullable();
             $table->timestamps();
@@ -92,7 +94,9 @@ return new class extends Migration
             $table->string('submitted_by')->nullable();
             $table->string('approved_by')->nullable();
             $table->date('approval_date')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->boolean('historical')->default(false);
+            $table->string('historical_type')->nullable();
             $table->timestamps();
         });
 
