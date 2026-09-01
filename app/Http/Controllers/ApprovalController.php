@@ -113,8 +113,10 @@ class ApprovalController extends Controller
         $model->approved_by = $user->name;
         $model->approval_date = now()->format('Y-m-d');
 
-        if ($type === 'Deposit' && $reason) {
-            $model->rejection_reason = $reason;
+        if ($decision === 'Rejected') {
+            $model->rejection_reason = $reason ?? null;
+        } else {
+            $model->rejection_reason = null;
         }
 
         $model->save();

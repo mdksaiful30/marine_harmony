@@ -31,7 +31,9 @@ class Investment extends Model
         'submitted_by',
         'approved_by',
         'approval_date',
+        'rejection_reason',
         'historical',
+        'historical_type',
     ];
 
     protected $casts = [

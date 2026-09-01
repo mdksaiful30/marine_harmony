@@ -18,10 +18,10 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/login-submit', [AuthController::class, 'login'])->name('tyro-login.login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/auth-logout', [AuthController::class, 'logout'])->name('tyro-login.logout');
-Route::match(['get', 'post'], '/switch-member/{id}', [AuthController::class, 'switchMember'])->name('auth.switch-member');
-
 // Protected Application Routes
 Route::middleware(['auth'])->group(function () {
+    Route::match(['get', 'post'], '/switch-member/{id}', [AuthController::class, 'switchMember'])->name('auth.switch-member');
+
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/dashboard/reconcile', [DashboardController::class, 'updateActualBalance'])->name('dashboard.reconcile');

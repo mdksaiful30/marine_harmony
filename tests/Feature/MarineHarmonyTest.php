@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Deposit;
+use App\Models\Expense;
 use App\Models\User;
 use App\Services\FinanceService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -170,6 +171,38 @@ class MarineHarmonyTest extends TestCase
             'id' => $pendingDeposit->id,
             'status' => 'Rejected',
             'rejection_reason' => 'Invalid bank slip reference image',
+            'approved_by' => $admin->name,
+        ]);
+    }
+
+    public function test_admin_can_reject_non_deposit_transaction_with_reason(): void
+    {
+        $admin = User::where('role', 'admin')->first();
+        $member = User::where('role', 'member')->first();
+
+        $expense = Expense::create([
+            'id' => 'EXP-TEST-REJECT-1',
+            'date' => '2026-09-01',
+            'category' => 'VAT',
+            'description' => 'Test expense',
+            'amount' => 2500,
+            'details' => 'Needs review',
+            'status' => 'Pending',
+            'submitted_by' => $member->name,
+        ]);
+
+        $response = $this->actingAs($admin)->post('/approval/decide', [
+            'type' => 'Expense',
+            'id' => $expense->id,
+            'decision' => 'Rejected',
+            'rejection_reason' => 'Amount exceeds expected threshold',
+        ]);
+
+        $response->assertRedirect('/approval');
+        $this->assertDatabaseHas('expenses', [
+            'id' => $expense->id,
+            'status' => 'Rejected',
+            'rejection_reason' => 'Amount exceeds expected threshold',
             'approved_by' => $admin->name,
         ]);
     }
