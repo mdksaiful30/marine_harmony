@@ -28,6 +28,20 @@ class MarineHarmonyTest extends TestCase
         $response->assertSee('Sign up');
     }
 
+    public function test_brand_links_are_clickable_on_login_and_dashboard(): void
+    {
+        $loginPage = $this->get('/login');
+        $loginPage->assertStatus(200);
+        $loginPage->assertSee('href="'.url('/').'"', false);
+
+        $admin = User::where('role', 'admin')->first();
+        $this->assertNotNull($admin);
+
+        $dashboardPage = $this->actingAs($admin)->get('/dashboard');
+        $dashboardPage->assertStatus(200);
+        $dashboardPage->assertSee('href="'.route('dashboard').'"', false);
+    }
+
     public function test_admin_can_login_and_view_dashboard(): void
     {
         $admin = User::where('role', 'admin')->first();

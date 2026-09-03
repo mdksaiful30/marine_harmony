@@ -6,9 +6,18 @@
 <div class="login">
     <div class="loginbox">
         <!-- Logo & Header -->
+        @php
+            $brandName = config('tyro-dashboard.branding.app_name') ?? config('app.name', 'Marine Harmony');
+            $brandLogo = config('tyro-dashboard.branding.logo') ?? 'images/logo.jpg';
+            $brandLogoSrc = $brandLogo && ! str_starts_with($brandLogo, 'http://') && ! str_starts_with($brandLogo, 'https://')
+                ? (file_exists(public_path($brandLogo)) ? asset($brandLogo) : \Illuminate\Support\Facades\Storage::url($brandLogo))
+                : $brandLogo;
+        @endphp
         <div style="text-align: center; margin-bottom: 1.25rem;">
-            <img class="login-logo" src="{{ asset('images/logo.jpg') }}" alt="Marine Harmony Logo">
-            <h1>Marine Harmony</h1>
+            <a href="{{ url('/') }}" style="display: inline-flex; flex-direction: column; align-items: center; gap: 0.5rem; color: inherit; text-decoration: none;" aria-label="Go to {{ $brandName }} home page">
+                <img class="login-logo" src="{{ $brandLogoSrc ?: asset('images/logo.jpg') }}" alt="{{ $brandName }} Logo">
+                <h1>{{ $brandName }}</h1>
+            </a>
             <p class="login-subtitle">Financial Records & Management Portal</p>
         </div>
 

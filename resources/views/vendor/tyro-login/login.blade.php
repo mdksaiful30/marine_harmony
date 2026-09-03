@@ -18,7 +18,7 @@ $webauthnToken = $passkeysEnabled ? ' webauthn' : '';
     <div class="form-panel">
         <div class="form-card">
             <!-- Logo -->
-            <div class="logo-container">
+            <a href="{{ url('/') }}" class="logo-container" style="display: inline-flex; align-items: center; justify-content: center; width: 100%; text-decoration: none;" aria-label="Go to {{ $branding['app_name'] ?? config('app.name') }} home page">
                 @if($branding['logo'] ?? false)
                 <img src="{{ $branding['logo'] }}" alt="{{ $branding['app_name'] ?? config('app.name') }}" class="logo-light">
                 @if($branding['logo_dark'] ?? false)
@@ -31,7 +31,7 @@ $webauthnToken = $passkeysEnabled ? ' webauthn' : '';
                     </svg>
                 </div>
                 @endif
-            </div>
+            </a>
 
             <!-- Header -->
             <div class="form-header">

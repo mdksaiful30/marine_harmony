@@ -22,10 +22,20 @@
 </head>
 <body>
     @auth
+    @php
+        $brandName = config('tyro-dashboard.branding.app_name') ?? config('app.name', 'Marine Harmony');
+        $brandHomeUrl = route('dashboard');
+        $brandLogo = config('tyro-dashboard.branding.logo') ?? 'images/logo.jpg';
+        $brandLogoSrc = $brandLogo && ! str_starts_with($brandLogo, 'http://') && ! str_starts_with($brandLogo, 'https://')
+            ? (file_exists(public_path($brandLogo)) ? asset($brandLogo) : \Illuminate\Support\Facades\Storage::url($brandLogo))
+            : $brandLogo;
+    @endphp
     <header>
         <div class="brand">
-            <img class="brand-logo" src="{{ asset('images/logo.jpg') }}" alt="Marine Harmony">
-            <span>Marine Harmony</span>
+            <a href="{{ $brandHomeUrl }}" style="display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none;" aria-label="Go to {{ $brandName }} home page">
+                <img class="brand-logo" src="{{ $brandLogoSrc ?: asset('images/logo.jpg') }}" alt="{{ $brandName }}">
+                <span>{{ $brandName }}</span>
+            </a>
         </div>
         <div class="userbar">
             <a href="{{ route('members.show', Auth::id()) }}" class="user-profile" title="View Your Profile" style="text-decoration: none; color: inherit;">
